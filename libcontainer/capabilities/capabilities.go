@@ -130,7 +130,7 @@ func (c *Caps) ApplyCaps() error {
 	ambs := c.caps[capability.AMBIENT]
 	err := capability.ResetAmbient()
 	if err != nil {
-		return fmt.Errorf("can't reset ambient capabilities: %w", err)
+		logrus.Warnf("can't reset ambient capabilities %s", err)
 	}
 	for _, a := range ambs {
 		err := capability.SetAmbient(true, a)
