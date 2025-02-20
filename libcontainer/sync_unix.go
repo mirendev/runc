@@ -42,8 +42,21 @@ func (s *syncSocket) WritePacket(b []byte) (int, error) {
 }
 
 func (s *syncSocket) ReadPacket() ([]byte, error) {
-	size, _, err := unix.Recvfrom(int(s.f.Fd()), nil, unix.MSG_TRUNC|unix.MSG_PEEK)
-	if err != nil {
+	var (
+		size int
+		err  error
+	)
+
+	for {
+		size, _, err = unix.Recvfrom(int(s.f.Fd()), nil, unix.MSG_TRUNC|unix.MSG_PEEK)
+		if err == nil {
+			break
+		}
+
+		if err == unix.EINTR {
+			continue
+		}
+
 		return nil, fmt.Errorf("fetch packet length from socket: %w", err)
 	}
 	// We will only get a zero size if the socket has been closed from the
